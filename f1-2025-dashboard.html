@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F1 2025 Season Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --f1-red: #e10600;
+    --f1-red-dark: #9b0300;
+    --carbon: #0a0a0a;
+    --carbon-mid: #111;
+    --carbon-light: #1a1a1a;
+    --carbon-border: #222;
+    --silver: #c0c0c0;
+    --silver-dim: #666;
+    --gold: #ffd700;
+    --white: #f5f5f5;
+    --mclaren: #ff8000;
+    --mercedes: #00d2be;
+    --redbull: #3671c6;
+    --ferrari: #e8002d;
+    --williams: #005aff;
+    --aston: #006f62;
+    --haas: #b6babd;
+    --sauber: #52e252;
+    --rbulls: #6692ff;
+    --alpine: #0093cc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--carbon);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Carbon fiber texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.012) 2px,
+        rgba(255,255,255,0.012) 4px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.008) 2px,
+        rgba(255,255,255,0.008) 4px
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    position: relative;
+    background: linear-gradient(180deg, #0d0d0d 0%, var(--carbon) 100%);
+    border-bottom: 2px solid var(--f1-red);
+    padding: 0 2rem;
+    z-index: 10;
+    animation: slideDown 0.6s ease both;
+  }
+
+  @keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .header-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 0;
+  }
+
+  .logo-group {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+
+  .f1-badge {
+    background: var(--f1-red);
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    padding: 0.3rem 0.9rem;
+    letter-spacing: 0.1em;
+    clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%);
+  }
+
+  .header-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--white);
+    text-transform: uppercase;
+  }
+
+  .header-title span {
+    color: var(--f1-red);
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .header-stat {
+    text-align: right;
+  }
+
+  .header-stat-label {
+    font-size: 0.65rem;
+    color: var(--silver-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .header-stat-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--f1-red);
+  }
+
+  .champion-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: linear-gradient(135deg, rgba(255,128,0,0.15), rgba(255,128,0,0.05));
+    border: 1px solid rgba(255,128,0,0.4);
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .champion-badge .crown { font-size: 1rem; }
+
+  /* ─── NAV TABS ─── */
+  .nav {
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,10,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--carbon-border);
+    z-index: 100;
+    animation: slideDown 0.7s 0.1s ease both;
+  }
+
+  .nav-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 2rem;
+  }
+
+  .nav-tab {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.9rem 1.4rem;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--silver-dim);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-tab:hover { color: var(--white); border-bottom-color: rgba(225,6,0,0.4); }
+  .nav-tab.active { color: var(--f1-red); border-bottom-color: var(--f1-red); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn 0.4s ease both; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── KPI HERO STRIP ─── */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1px;
+    background: var(--carbon-border);
+    border: 1px solid var(--carbon-border);
+    margin-bottom: 2rem;
+    animation: fadeIn 0.5s 0.2s ease both;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+
+  .kpi-card {
+    background: var(--carbon-light);
+    padding: 1.4rem 1.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s;
+  }
+
+  .kpi-card:hover { background: #1e1e1e; }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent, var(--f1-red));
+  }
+
+  .kpi-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    color: var(--silver-dim);
+    text-transform: uppercase;
+    font-family: 'Share Tech Mono', monospace;
+    margin-bottom: 0.5rem;
+  }
+
+  .kpi-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+
+  .kpi-sub {
+    font-size: 0.7rem;
+    color: var(--accent, var(--f1-red));
+    letter-spacing: 0.05em;
+  }
+
+  .kpi-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    opacity: 0.08;
+  }
+
+  /* ─── GRID LAYOUTS ─── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+
+  @media (max-width: 1100px) {
+    .grid-2, .grid-3, .grid-1-2, .grid-2-1 { grid-template-columns: 1fr; }
+  }
+
+  /* ─── PANEL ─── */
+  .panel {
+    background: var(--carbon-light);
+    border: 1px solid var(--carbon-border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.3rem;
+    border-bottom: 1px solid var(--carbon-border);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .panel-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--silver);
+  }
+
+  .panel-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.6rem;
+    background: rgba(225,6,0,0.15);
+    color: var(--f1-red);
+    border: 1px solid rgba(225,6,0,0.3);
+    letter-spacing: 0.1em;
+  }
+
+  .panel-body { padding: 1.2rem; }
+
+  /* ─── DRIVER ROW / LEADERBOARD ─── */
+  .leaderboard { display: flex; flex-direction: column; gap: 0; }
+
+  .driver-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.7rem 1.2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+    position: relative;
+    cursor: default;
+  }
+
+  .driver-row:last-child { border-bottom: none; }
+  .driver-row:hover { background: rgba(255,255,255,0.03); }
+
+  .driver-row.p1 { background: linear-gradient(90deg, rgba(255,215,0,0.07) 0%, transparent 60%); }
+  .driver-row.p2 { background: linear-gradient(90deg, rgba(192,192,192,0.05) 0%, transparent 60%); }
+  .driver-row.p3 { background: linear-gradient(90deg, rgba(205,127,50,0.05) 0%, transparent 60%); }
+
+  .pos-number {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 900;
+    width: 2rem;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .pos-number.gold { color: var(--gold); }
+  .pos-number.silver { color: var(--silver); }
+  .pos-number.bronze { color: #cd7f32; }
+  .pos-number.normal { color: var(--silver-dim); }
+
+  .team-bar {
+    width: 3px;
+    height: 2.2rem;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .driver-info { flex: 1; min-width: 0; }
+
+  .driver-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--white);
+    line-height: 1.2;
+  }
+
+  .driver-team {
+    font-size: 0.65rem;
+    color: var(--silver-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .driver-points {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: right;
+    min-width: 3.5rem;
+  }
+
+  .driver-pts-label {
+    font-size: 0.55rem;
+    color: var(--silver-dim);
+    letter-spacing: 0.1em;
+    font-family: 'Share Tech Mono', monospace;
+    text-align: right;
+  }
+
+  .driver-badges {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    min-width: 5rem;
+  }
+
+  .badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.5rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: 1px;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+  }
+
+  .badge-win { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+  .badge-pole { background: rgba(0,210,190,0.12); color: var(--mercedes); border: 1px solid rgba(0,210,190,0.3); }
+  .badge-fl { background: rgba(150,50,220,0.15); color: #b07efc; border: 1px solid rgba(150,50,220,0.3); }
+  .badge-pod { background: rgba(205,127,50,0.15); color: #cd7f32; border: 1px solid rgba(205,127,50,0.3); }
+  .badge-champ { background: rgba(255,128,0,0.2); color: var(--mclaren); border: 1px solid rgba(255,128,0,0.4); }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .progress-row:last-child { border-bottom: none; }
+
+  .progress-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-width: 9rem;
+    letter-spacing: 0.02em;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s cubic-bezier(0.25,1,0.5,1);
+  }
+
+  .progress-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--silver);
+    min-width: 3rem;
+    text-align: right;
+  }
+
+  /* ─── RACE CALENDAR ─── */
+  .race-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 1px;
+    background: var(--carbon-border);
+  }
+
+  .race-cell {
+    background: var(--carbon-light);
+    padding: 0.9rem 1rem;
+    transition: background 0.15s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .race-cell:hover { background: #1e1e1e; }
+
+  .race-cell::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--team-color, var(--carbon-border));
+  }
+
+  .race-round {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--silver-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.2rem;
+  }
+
+  .race-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.02em;
+    margin-bottom: 0.3rem;
+    line-height: 1.2;
+  }
+
+  .race-winner {
+    font-size: 0.65rem;
+    color: var(--silver-dim);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .race-winner span {
+    color: var(--gold);
+  }
+
+  /* ─── CONSTRUCTOR BARS ─── */
+  .constructor-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+  }
+
+  .constructor-row:last-child { border-bottom: none; }
+  .constructor-row:hover { background: rgba(255,255,255,0.02); }
+
+  .constructor-pos {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 900;
+    width: 1.6rem;
+    color: var(--silver-dim);
+  }
+
+  .constructor-color {
+    width: 4px;
+    height: 2.5rem;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .constructor-name {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .constructor-bar-wrap { flex: 2; }
+
+  .constructor-pts {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    min-width: 3.5rem;
+    text-align: right;
+  }
+
+  /* ─── CHAMPIONSHIP TRACKER ─── */
+  .champ-race-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto auto;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.78rem;
+  }
+
+  .champ-race-row:last-child { border-bottom: none; }
+
+  .champ-gp {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--silver-dim);
+    min-width: 3.5rem;
+  }
+
+  .champ-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 14px;
+  }
+
+  .champ-seg {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 0.6s ease;
+  }
+
+  .champ-pts {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    min-width: 2.2rem;
+    text-align: right;
+  }
+
+  /* ─── STAT COMPARISON ─── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .compare-grid:last-child { border-bottom: none; }
+
+  .compare-val-left {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--mclaren);
+    text-align: right;
+  }
+
+  .compare-val-right {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--redbull);
+  }
+
+  .compare-metric {
+    font-size: 0.62rem;
+    color: var(--silver-dim);
+    text-align: center;
+    letter-spacing: 0.1em;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 0 0.5rem;
+  }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--f1-red);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(225,6,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(225,6,0,0.2), transparent);
+  }
+
+  /* ─── FLAG EMOJIS MAP ─── */
+  .flag { font-size: 1rem; }
+
+  /* ─── POLE / WIN / FL MINI CHARTS ─── */
+  .mini-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .mini-stat-row:last-child { border-bottom: none; }
+
+  .mini-driver { font-size: 0.82rem; font-weight: 600; min-width: 8rem; }
+
+  .mini-dots {
+    display: flex;
+    gap: 3px;
+    flex: 1;
+  }
+
+  .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .mini-count {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    min-width: 1.5rem;
+    text-align: right;
+  }
+
+  /* ─── SEASON NARRATIVE ─── */
+  .narrative {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: #aaa;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .narrative strong { color: var(--white); font-weight: 700; }
+  .narrative .highlight { color: var(--mclaren); }
+  .narrative .red { color: var(--f1-red); }
+
+  /* ─── ROOKIE CARD ─── */
+  .rookie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .rookie-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--carbon-border);
+    padding: 1.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .rookie-card:hover { border-color: rgba(255,255,255,0.12); }
+
+  .rookie-card::before {
+    content: 'ROOKIE';
+    position: absolute;
+    top: 0.6rem; right: 0.6rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.5rem;
+    color: var(--sauber);
+    border: 1px solid rgba(82,226,82,0.3);
+    padding: 0.1rem 0.3rem;
+    letter-spacing: 0.1em;
+  }
+
+  .rookie-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.2rem; }
+  .rookie-team { font-size: 0.62rem; color: var(--silver-dim); font-family: 'Share Tech Mono', monospace; letter-spacing: 0.1em; margin-bottom: 0.8rem; }
+  .rookie-stat { display: flex; justify-content: space-between; font-size: 0.72rem; padding: 0.2rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .rookie-stat:last-child { border-bottom: none; }
+  .rookie-stat-val { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: 700; color: var(--white); }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--carbon); }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--silver-dim);
+    letter-spacing: 0.1em;
+    border-top: 1px solid var(--carbon-border);
+    margin-top: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── SPEED LINE decorative ─── */
+  .speed-line {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 40%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--f1-red));
+    pointer-events: none;
+  }
+
+  .championship-hero {
+    background: linear-gradient(135deg, rgba(255,128,0,0.08) 0%, rgba(10,10,10,0) 50%);
+    border: 1px solid rgba(255,128,0,0.2);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .champ-trophy { font-size: 4rem; line-height: 1; }
+
+  .champ-details h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--mclaren);
+    line-height: 1.1;
+    margin-bottom: 0.3rem;
+  }
+
+  .champ-details .champ-subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--silver-dim);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .champ-stats-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-end;
+  }
+
+  .champ-stat-item {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    text-align: right;
+  }
+
+  .champ-stat-item span {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--mclaren);
+    display: block;
+    line-height: 1;
+  }
+
+  .champ-stat-item small {
+    font-size: 0.5rem;
+    letter-spacing: 0.15em;
+    color: var(--silver-dim);
+    font-family: 'Share Tech Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-group">
+      <div class="f1-badge">F1</div>
+      <div class="header-title">2025 <span>SEASON</span> DASHBOARD</div>
+    </div>
+    <div class="header-meta">
+      <div class="header-stat">
+        <div class="header-stat-label">Rounds</div>
+        <div class="header-stat-value">24</div>
+      </div>
+      <div class="header-stat">
+        <div class="header-stat-label">Season</div>
+        <div class="header-stat-value">COMPLETE</div>
+      </div>
+      <div class="champion-badge">
+        <span class="crown">🏆</span>
+        <div>
+          <div style="font-size:0.7rem;color:var(--white);font-weight:700;">LANDO NORRIS</div>
+          <div style="font-size:0.55rem;color:var(--silver-dim);">2025 WORLD CHAMPION</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-tab active" onclick="showSection('overview')">Overview</button>
+    <button class="nav-tab" onclick="showSection('drivers')">Driver Standings</button>
+    <button class="nav-tab" onclick="showSection('constructors')">Constructors</button>
+    <button class="nav-tab" onclick="showSection('performance')">Performance Stats</button>
+    <button class="nav-tab" onclick="showSection('calendar')">Race Calendar</button>
+    <button class="nav-tab" onclick="showSection('rookies')">Rookies & Moves</button>
+  </div>
+</nav>
+
+<!-- ─── OVERVIEW ─── -->
+<main class="main">
+
+<section id="overview" class="section active">
+
+  <!-- Championship Hero -->
+  <div class="championship-hero">
+    <div class="champ-trophy">🏆</div>
+    <div class="champ-details">
+      <div class="champ-subtitle">2025 F1 WORLD DRIVERS' CHAMPION</div>
+      <h2>LANDO NORRIS</h2>
+      <div style="font-size:0.8rem;color:#aaa;margin-top:0.4rem;">McLaren · Britain · 8th McLaren champion · 11th British champion · 35th different champion</div>
+    </div>
+    <div class="champ-stats-hero">
+      <div class="champ-stat-item">
+        <span>423</span><small>POINTS</small>
+      </div>
+      <div class="champ-stat-item">
+        <span>7</span><small>RACE WINS</small>
+      </div>
+      <div class="champ-stat-item">
+        <span>+2</span><small>MARGIN OVER VERSTAPPEN</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi-card" style="--accent:var(--mclaren)">
+      <div class="kpi-label">Points Leader</div>
+      <div class="kpi-value" style="font-size:1.4rem">NORRIS</div>
+      <div class="kpi-sub">423 pts · McLaren</div>
+      <div class="kpi-icon">🏆</div>
+    </div>
+    <div class="kpi-card" style="--accent:var(--redbull)">
+      <div class="kpi-label">Most Wins</div>
+      <div class="kpi-value">8</div>
+      <div class="kpi-sub">Verstappen (Red Bull)</div>
+      <div class="kpi-icon">🥇</div>
+    </div>
+    <div class="kpi-card" style="--accent:var(--redbull)">
+      <div class="kpi-label">Most Poles</div>
+      <div class="kpi-value">8</div>
+      <div class="kpi-sub">Verstappen (Red Bull)</div>
+      <div class="kpi-icon">⚡</div>
+    </div>
+    <div class="kpi-card" style="--accent:var(--mclaren)">
+      <div class="kpi-label">Most Podiums</div>
+      <div class="kpi-value">18</div>
+      <div class="kpi-sub">Norris (McLaren)</div>
+      <div class="kpi-icon">🥈</div>
+    </div>
+    <div class="kpi-card" style="--accent:var(--mclaren)">
+      <div class="kpi-label">Constructor Champion</div>
+      <div class="kpi-value" style="font-size:1.3rem">McLaren</div>
+      <div class="kpi-sub">833 pts · Dominant</div>
+      <div class="kpi-icon">🏎️</div>
+    </div>
+    <div class="kpi-card" style="--accent:#b07efc">
+      <div class="kpi-label">Most Fastest Laps</div>
+      <div class="kpi-value">6</div>
+      <div class="kpi-sub">Norris & Piastri (tied)</div>
+      <div class="kpi-icon">⏱️</div>
+    </div>
+    <div class="kpi-card" style="--accent:var(--sauber)">
+      <div class="kpi-label">Total Rounds</div>
+      <div class="kpi-value">24</div>
+      <div class="kpi-sub">Aus → Abu Dhabi</div>
+      <div class="kpi-icon">🌍</div>
+    </div>
+    <div class="kpi-card" style="--accent:var(--gold)">
+      <div class="kpi-label">Drivers w/ Wins</div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-sub">Norris, Piastri, Verstappen, Russell</div>
+      <div class="kpi-icon">🎖️</div>
+    </div>
+  </div>
+
+  <!-- Overview Grid -->
+  <div class="grid-2">
+
+    <!-- Top 5 Drivers -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Drivers Championship — Top 5</span>
+        <span class="panel-badge">FINAL</span>
+      </div>
+      <div class="leaderboard">
+        <div class="driver-row p1">
+          <div class="pos-number gold">1</div>
+          <div class="team-bar" style="background:var(--mclaren)"></div>
+          <div class="driver-info">
+            <div class="driver-name">🇬🇧 Lando Norris <span class="badge badge-champ">CHAMPION</span></div>
+            <div class="driver-team">McLaren</div>
+          </div>
+          <div>
+            <div class="driver-points" style="color:var(--mclaren)">423</div>
+            <div class="driver-pts-label">POINTS</div>
+          </div>
+        </div>
+        <div class="driver-row p2">
+          <div class="pos-number silver">2</div>
+          <div class="team-bar" style="background:var(--redbull)"></div>
+          <div class="driver-info">
+            <div class="driver-name">🇳🇱 Max Verstappen</div>
+            <div class="driver-team">Red Bull Racing</div>
+          </div>
+          <div>
+            <div class="driver-points" style="color:var(--redbull)">421</div>
+            <div class="driver-pts-label">POINTS</div>
+          </div>
+        </div>
+        <div class="driver-row p3">
+          <div class="pos-number bronze">3</div>
+          <div class="team-bar" style="background:var(--mclaren)"></div>
+          <div class="driver-info">
+            <div class="driver-name">🇦🇺 Oscar Piastri</div>
+            <div class="driver-team">McLaren</div>
+          </div>
+          <div>
+            <div class="driver-points" style="color:var(--mclaren)">410</div>
+            <div class="driver-pts-label">POINTS</div>
+          </div>
+        </div>
+        <div class="driver-row">
+          <div class="pos-number normal">4</div>
+          <div class="team-bar" style="background:var(--mercedes)"></div>
+          <div class="driver-info">
+            <div class="driver-name">🇬🇧 George Russell</div>
+            <div class="driver-team">Mercedes</div>
+          </div>
+          <div>
+            <div class="driver-points" style="color:var(--mercedes)">319</div>
+            <div class="driver-pts-label">POINTS</div>
+          </div>
+        </div>
+        <div class="driver-row">
+          <div class="pos-number normal">5</div>
+          <div class="team-bar" style="background:var(--ferrari)"></div>
+          <div class="driver-info">
+            <div class="driver-name">🇲🇨 Charles Leclerc</div>
+            <div class="driver-team">Ferrari</div>
+          </div>
+          <div>
+            <div class="driver-points" style="color:var(--ferrari)">242</div>
+            <div class="driver-pts-label">POINTS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Constructors Top 5 -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Constructors Championship — Top 5</span>
+        <span class="panel-badge">FINAL</span>
+      </div>
+      <div style="padding:1.2rem">
+        <div class="constructor-row" style="background:linear-gradient(90deg,rgba(255,128,0,0.08),transparent 60%)">
+          <div class="constructor-pos">1</div>
+          <div class="constructor-color" style="background:var(--mclaren)"></div>
+          <div class="constructor-name">McLaren 🏆</div>
+          <div class="constructor-bar-wrap">
+            <div class="progress-track"><div class="progress-fill" style="width:100%;background:var(--mclaren)"></div></div>
+          </div>
+          <div class="constructor-pts" style="color:var(--mclaren)">833</div>
+        </div>
+        <div class="constructor-row">
+          <div class="constructor-pos">2</div>
+          <div class="constructor-color" style="background:var(--mercedes)"></div>
+          <div class="constructor-name">Mercedes</div>
+          <div class="constructor-bar-wrap">
+            <div class="progress-track"><div class="progress-fill" style="width:56%;background:var(--mercedes)"></div></div>
+          </div>
+          <div class="constructor-pts" style="color:var(--mercedes)">469</div>
+        </div>
+        <div class="constructor-row">
+          <div class="constructor-pos">3</div>
+          <div class="constructor-color" style="background:var(--redbull)"></div>
+          <div class="constructor-name">Red Bull</div>
+          <div class="constructor-bar-wrap">
+            <div class="progress-track"><div class="progress-fill" style="width:54%;background:var(--redbull)"></div></div>
+          </div>
+          <div class="constructor-pts" style="color:var(--redbull)">451</div>
+        </div>
+        <div class="constructor-row">
+          <div class="constructor-pos">4</div>
+          <div class="constructor-color" style="background:var(--ferrari)"></div>
+          <div class="constructor-name">Ferrari</div>
+          <div class="constructor-bar-wrap">
+            <div class="progress-track"><div class="progress-fill" style="width:48%;background:var(--ferrari)"></div></div>
+          </div>
+          <div class="constructor-pts" style="color:var(--ferrari)">398</div>
+        </div>
+        <div class="constructor-row">
+          <div class="constructor-pos">5</div>
+          <div class="constructor-color" style="background:var(--williams)"></div>
+          <div class="constructor-name">Williams</div>
+          <div class="constructor-bar-wrap">
+            <div class="progress-track"><div class="progress-fill" style="width:16%;background:var(--williams)"></div></div>
+          </div>
+          <div class="constructor-pts" style="color:var(--williams)">137</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Season Narrative -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Season Narrative</span>
+      <span class="panel-badge">2025</span>
+    </div>
+    <div class="panel-body">
+      <p class="narrative">
+        The 2025 Formula One season was the <strong>76th running of the World Championship</strong>, contested over <strong class="highlight">24 Grands Prix</strong> from Australia in March to Abu Dhabi in December. The season ended four years of <strong>Max Verstappen</strong> dominance, as <strong class="highlight">Lando Norris</strong> claimed his maiden title by just <span class="red">two points</span> in the season finale at Abu Dhabi — one of the closest finishes in modern F1 history.
+      </p>
+      <br>
+      <p class="narrative">
+        <strong class="highlight">McLaren</strong> were the dominant force throughout the year, with their two drivers combining for <strong>14 race wins</strong> out of 24. Verstappen fought brilliantly despite Red Bull's relative midfield car, winning <strong>8 races</strong> — more than any other driver. The season saw <strong>Lewis Hamilton</strong> make his high-profile switch to Ferrari, <strong>Kimi Antonelli</strong> become the youngest driver to lead a race and set fastest lap on debut for Mercedes, and an unexpected podium from Williams' <strong>Carlos Sainz</strong>.
+      </p>
+      <br>
+      <p class="narrative">
+        Key controversies included <strong>three post-race disqualifications</strong> — Leclerc, Hamilton and Gasly in China, Hülkenberg in Bahrain, and Norris & Piastri in Las Vegas. <strong class="highlight">McLaren</strong> clinched the Constructors' title with six rounds to spare, amassing a record 833 points.
+      </p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ─── DRIVER STANDINGS ─── -->
+<section id="drivers" class="section">
+
+  <div class="section-title">2025 Full Driver Championship Standings</div>
+
+  <div class="panel">
+    <div class="leaderboard" id="full-standings">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+</section>
+
+<!-- ─── CONSTRUCTORS ─── -->
+<section id="constructors" class="section">
+
+  <div class="section-title">2025 Constructors' Championship</div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Full Standings</span><span class="panel-badge">10 TEAMS</span></div>
+      <div style="padding:1.2rem" id="constructor-full"><!-- JS --></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Points Distribution</span><span class="panel-badge">% SHARE</span></div>
+      <div class="panel-body" id="constructor-share"><!-- JS --></div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Constructor Wins</span></div>
+      <div class="panel-body" id="constructor-wins"><!-- JS --></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Constructor Poles</span></div>
+      <div class="panel-body" id="constructor-poles"><!-- JS --></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Constructor Podiums</span></div>
+      <div class="panel-body" id="constructor-podiums"><!-- JS --></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ─── PERFORMANCE STATS ─── -->
+<section id="performance" class="section">
+
+  <div class="section-title">Performance Statistics</div>
+
+  <div class="grid-2">
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Race Wins</span><span class="panel-badge">24 RACES</span></div>
+      <div class="panel-body">
+        <div class="mini-stat-row" style="border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:0.5rem;margin-bottom:0.5rem">
+          <span style="font-size:0.6rem;color:var(--silver-dim);font-family:'Share Tech Mono',monospace;min-width:8rem">DRIVER</span>
+          <span style="font-size:0.6rem;color:var(--silver-dim);font-family:'Share Tech Mono',monospace;flex:1">WINS</span>
+          <span style="font-size:0.6rem;color:var(--silver-dim);font-family:'Share Tech Mono',monospace">#</span>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇳🇱 Verstappen</div>
+          <div class="mini-dots" id="wins-ver"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--redbull)">8</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇬🇧 Norris</div>
+          <div class="mini-dots" id="wins-nor"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--mclaren)">7</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇦🇺 Piastri</div>
+          <div class="mini-dots" id="wins-pia"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--mclaren)">7</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇬🇧 Russell</div>
+          <div class="mini-dots" id="wins-rus"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--mercedes)">2</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">Others</div>
+          <div class="mini-dots"></div>
+          <div class="mini-count" style="color:var(--silver-dim)">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Pole Positions</span><span class="panel-badge">24 RACES</span></div>
+      <div class="panel-body">
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇳🇱 Verstappen</div>
+          <div class="mini-dots" id="poles-ver"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--redbull)">8</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇬🇧 Norris</div>
+          <div class="mini-dots" id="poles-nor"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--mclaren)">7</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇦🇺 Piastri</div>
+          <div class="mini-dots" id="poles-pia"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--mclaren)">6</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇬🇧 Russell</div>
+          <div class="mini-dots" id="poles-rus"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--mercedes)">2</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇲🇨 Leclerc</div>
+          <div class="mini-dots" id="poles-lec"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--ferrari)">1</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Fastest Laps</span><span class="panel-badge">24 RACES</span></div>
+      <div class="panel-body">
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇬🇧 Norris</div>
+          <div class="mini-dots" id="fl-nor"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--mclaren)">6</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇦🇺 Piastri</div>
+          <div class="mini-dots" id="fl-pia"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--mclaren)">6</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇮🇹 Antonelli</div>
+          <div class="mini-dots" id="fl-ant"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--mercedes)">3</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇬🇧 Russell</div>
+          <div class="mini-dots" id="fl-rus"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--mercedes)">3</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">🇳🇱 Verstappen</div>
+          <div class="mini-dots" id="fl-ver"><!-- JS --></div>
+          <div class="mini-count" style="color:var(--redbull)">3</div>
+        </div>
+        <div class="mini-stat-row">
+          <div class="mini-driver">Others (3 drivers)</div>
+          <div class="mini-dots"></div>
+          <div class="mini-count" style="color:var(--silver-dim)">1 ea</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Podiums Leaderboard</span></div>
+      <div class="panel-body">
+        <div class="progress-row">
+          <div class="progress-label" style="color:var(--mclaren)">🇬🇧 Norris</div>
+          <div class="progress-track"><div class="progress-fill" style="width:100%;background:var(--mclaren)"></div></div>
+          <div class="progress-val">18</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label" style="color:var(--mclaren)">🇦🇺 Piastri</div>
+          <div class="progress-track"><div class="progress-fill" style="width:89%;background:var(--mclaren)"></div></div>
+          <div class="progress-val">16</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label" style="color:var(--redbull)">🇳🇱 Verstappen</div>
+          <div class="progress-track"><div class="progress-fill" style="width:83%;background:var(--redbull)"></div></div>
+          <div class="progress-val">15</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label" style="color:var(--mercedes)">🇬🇧 Russell</div>
+          <div class="progress-track"><div class="progress-fill" style="width:50%;background:var(--mercedes)"></div></div>
+          <div class="progress-val">9</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label" style="color:var(--ferrari)">🇲🇨 Leclerc</div>
+          <div class="progress-track"><div class="progress-fill" style="width:39%;background:var(--ferrari)"></div></div>
+          <div class="progress-val">7</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label" style="color:var(--mercedes)">🇮🇹 Antonelli</div>
+          <div class="progress-track"><div class="progress-fill" style="width:17%;background:var(--mercedes)"></div></div>
+          <div class="progress-val">3</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label" style="color:var(--williams)">🇪🇸 Sainz</div>
+          <div class="progress-track"><div class="progress-fill" style="width:11%;background:var(--williams)"></div></div>
+          <div class="progress-val">2</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label" style="color:var(--sauber)">🇩🇪 Hülkenberg</div>
+          <div class="progress-track"><div class="progress-fill" style="width:6%;background:var(--sauber)"></div></div>
+          <div class="progress-val">1</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label" style="color:var(--rbulls)">🇫🇷 Hadjar</div>
+          <div class="progress-track"><div class="progress-fill" style="width:6%;background:var(--rbulls)"></div></div>
+          <div class="progress-val">1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Points per points finish -->
+  <div class="panel">
+    <div class="panel-header"><span class="panel-title">Points Efficiency — Points per Points-Scoring Finish</span><span class="panel-badge">KPI</span></div>
+    <div class="panel-body">
+      <div class="grid-2" style="margin:0">
+        <div>
+          <div class="progress-row">
+            <div class="progress-label" style="color:var(--mclaren)">🇬🇧 Norris</div>
+            <div class="progress-track"><div class="progress-fill" style="width:100%;background:var(--mclaren)"></div></div>
+            <div class="progress-val">20.1</div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label" style="color:var(--mclaren)">🇦🇺 Piastri</div>
+            <div class="progress-track"><div class="progress-fill" style="width:93%;background:var(--mclaren)"></div></div>
+            <div class="progress-val">18.6</div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label" style="color:var(--redbull)">🇳🇱 Verstappen</div>
+            <div class="progress-track"><div class="progress-fill" style="width:91%;background:var(--redbull)"></div></div>
+            <div class="progress-val">18.3</div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label" style="color:var(--mercedes)">🇬🇧 Russell</div>
+            <div class="progress-track"><div class="progress-fill" style="width:69%;background:var(--mercedes)"></div></div>
+            <div class="progress-val">13.9</div>
+          </div>
+        </div>
+        <div>
+          <div class="progress-row">
+            <div class="progress-label" style="color:var(--ferrari)">🇲🇨 Leclerc</div>
+            <div class="progress-track"><div class="progress-fill" style="width:60%;background:var(--ferrari)"></div></div>
+            <div class="progress-val">12.1</div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label" style="color:var(--mercedes)">🇮🇹 Antonelli</div>
+            <div class="progress-track"><div class="progress-fill" style="width:53%;background:var(--mercedes)"></div></div>
+            <div class="progress-val">10.7</div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label" style="color:var(--ferrari)">🇬🇧 Hamilton</div>
+            <div class="progress-track"><div class="progress-fill" style="width:41%;background:var(--ferrari)"></div></div>
+            <div class="progress-val">8.2</div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label" style="color:var(--williams)">🇹🇭 Albon</div>
+            <div class="progress-track"><div class="progress-fill" style="width:33%;background:var(--williams)"></div></div>
+            <div class="progress-val">6.6</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Norris vs Verstappen -->
+  <div class="panel">
+    <div class="panel-header"><span class="panel-title">Championship Battle — Norris vs Verstappen</span><span class="panel-badge">HEAD TO HEAD</span></div>
+    <div class="panel-body">
+      <div style="display:flex;justify-content:space-between;margin-bottom:1.2rem;padding-bottom:0.8rem;border-bottom:1px solid rgba(255,255,255,0.06)">
+        <div style="text-align:left">
+          <div style="font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;color:var(--mclaren)">NORRIS</div>
+          <div style="font-size:0.6rem;color:var(--silver-dim);font-family:'Share Tech Mono',monospace">McLAREN · 🇬🇧</div>
+        </div>
+        <div style="font-size:0.65rem;color:var(--silver-dim);font-family:'Share Tech Mono',monospace;align-self:center">VS</div>
+        <div style="text-align:right">
+          <div style="font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;color:var(--redbull)">VERSTAPPEN</div>
+          <div style="font-size:0.6rem;color:var(--silver-dim);font-family:'Share Tech Mono',monospace">RED BULL · 🇳🇱</div>
+        </div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-val-left">423</div>
+        <div class="compare-metric">POINTS</div>
+        <div class="compare-val-right">421</div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-val-left">7</div>
+        <div class="compare-metric">WINS</div>
+        <div class="compare-val-right">8</div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-val-left">7</div>
+        <div class="compare-metric">POLES</div>
+        <div class="compare-val-right">8</div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-val-left">18</div>
+        <div class="compare-metric">PODIUMS</div>
+        <div class="compare-val-right">15</div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-val-left">6</div>
+        <div class="compare-metric">FASTEST LAPS</div>
+        <div class="compare-val-right">3</div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-val-left">21</div>
+        <div class="compare-metric">POINTS FINISHES</div>
+        <div class="compare-val-right">23</div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-val-left">20.1</div>
+        <div class="compare-metric">AVG PTS / FINISH</div>
+        <div class="compare-val-right">18.3</div>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-val-left" style="color:var(--gold)">🏆 CHAMPION</div>
+        <div class="compare-metric">TITLE</div>
+        <div class="compare-val-right" style="color:var(--silver-dim);font-size:0.7rem">Runner-up</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ─── RACE CALENDAR ─── -->
+<section id="calendar" class="section">
+
+  <div class="section-title">2025 Race Calendar & Winners</div>
+
+  <div class="race-grid" id="race-calendar"><!-- JS --></div>
+
+</section>
+
+<!-- ─── ROOKIES & MOVES ─── -->
+<section id="rookies" class="section">
+
+  <div class="section-title">2025 New Drivers & Notable Moves</div>
+
+  <div style="margin-bottom:1.5rem">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Notable Driver Moves for 2025</span></div>
+      <div class="panel-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem">
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(232,0,45,0.2);padding:1rem">
+            <div style="font-size:0.6rem;color:var(--ferrari);font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;margin-bottom:0.4rem">BIGGEST MOVE OF THE SEASON</div>
+            <div style="font-size:0.95rem;font-weight:700;">🇬🇧 Lewis Hamilton</div>
+            <div style="font-size:0.7rem;color:var(--silver-dim);margin-bottom:0.5rem;font-family:'Share Tech Mono',monospace">MERCEDES → FERRARI</div>
+            <div style="font-size:0.75rem;color:#aaa">156 pts, 4th fastest lap of season. The most anticipated move in decades as Hamilton chased a title with the Scuderia.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(0,210,190,0.2);padding:1rem">
+            <div style="font-size:0.6rem;color:var(--mercedes);font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;margin-bottom:0.4rem">ROOKIE OF THE YEAR CONTENDER</div>
+            <div style="font-size:0.95rem;font-weight:700;">🇮🇹 Kimi Antonelli</div>
+            <div style="font-size:0.7rem;color:var(--silver-dim);margin-bottom:0.5rem;font-family:'Share Tech Mono',monospace">F2 → MERCEDES</div>
+            <div style="font-size:0.75rem;color:#aaa">150 pts, 3 fastest laps, 3 podiums. Youngest to lead a race AND set fastest lap on debut in F1 history.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(0,90,255,0.2);padding:1rem">
+            <div style="font-size:0.6rem;color:var(--williams);font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;margin-bottom:0.4rem">SURPRISE PACKAGE</div>
+            <div style="font-size:0.95rem;font-weight:700;">🇪🇸 Carlos Sainz</div>
+            <div style="font-size:0.7rem;color:var(--silver-dim);margin-bottom:0.5rem;font-family:'Share Tech Mono',monospace">FERRARI → WILLIAMS</div>
+            <div style="font-size:0.75rem;color:#aaa">64 pts, 2 podiums. Elevated Williams to 5th in the Constructors', their best result in years.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(0,0,0,0.1);padding:1rem">
+            <div style="font-size:0.6rem;color:var(--alpine);font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;margin-bottom:0.4rem">MID-SEASON CHANGE</div>
+            <div style="font-size:0.95rem;font-weight:700;">🇦🇷 Franco Colapinto</div>
+            <div style="font-size:0.7rem;color:var(--silver-dim);margin-bottom:0.5rem;font-family:'Share Tech Mono',monospace">REPLACED DOOHAN (R7) AT ALPINE</div>
+            <div style="font-size:0.75rem;color:#aaa">0 points in 2025. Jack Doohan replaced by Colapinto from Round 7 at Alpine amid poor results.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(54,113,198,0.2);padding:1rem">
+            <div style="font-size:0.6rem;color:var(--redbull);font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;margin-bottom:0.4rem">RED BULL DEMOTION</div>
+            <div style="font-size:0.95rem;font-weight:700;">🇯🇵 Yuki Tsunoda</div>
+            <div style="font-size:0.7rem;color:var(--silver-dim);margin-bottom:0.5rem;font-family:'Share Tech Mono',monospace">RED BULL (R1-2) → RACING BULLS (R3+)</div>
+            <div style="font-size:0.75rem;color:#aaa">33 pts. Promoted to Red Bull for just 2 races, then demoted. Lawson took the seat from R3.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(82,226,82,0.2);padding:1rem">
+            <div style="font-size:0.6rem;color:var(--sauber);font-family:'Share Tech Mono',monospace;letter-spacing:0.1em;margin-bottom:0.4rem">DEBUT SEASON</div>
+            <div style="font-size:0.95rem;font-weight:700;">🇧🇷 Gabriel Bortoleto</div>
+            <div style="font-size:0.7rem;color:var(--silver-dim);margin-bottom:0.5rem;font-family:'Share Tech Mono',monospace">F2 CHAMPION → KICK SAUBER</div>
+            <div style="font-size:0.75rem;color:#aaa">19 pts on debut. Rookie season alongside Hülkenberg, showed flashes of real pace.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">2025 Rookies</div>
+  <div class="rookie-grid">
+    <div class="rookie-card" style="border-color:rgba(0,210,190,0.3)">
+      <div class="rookie-name">🇮🇹 Kimi Antonelli</div>
+      <div class="rookie-team" style="color:var(--mercedes)">MERCEDES · ITALY</div>
+      <div class="rookie-stat"><span>Points</span><span class="rookie-stat-val" style="color:var(--mercedes)">150</span></div>
+      <div class="rookie-stat"><span>Podiums</span><span class="rookie-stat-val">3</span></div>
+      <div class="rookie-stat"><span>Fastest Laps</span><span class="rookie-stat-val">3</span></div>
+      <div class="rookie-stat"><span>Points Finishes</span><span class="rookie-stat-val">14</span></div>
+      <div class="rookie-stat"><span>Best Result</span><span class="rookie-stat-val" style="color:var(--gold)">P2</span></div>
+    </div>
+    <div class="rookie-card" style="border-color:rgba(102,146,255,0.3)">
+      <div class="rookie-name">🇫🇷 Isack Hadjar</div>
+      <div class="rookie-team" style="color:var(--rbulls)">RACING BULLS · FRANCE</div>
+      <div class="rookie-stat"><span>Points</span><span class="rookie-stat-val" style="color:var(--rbulls)">51</span></div>
+      <div class="rookie-stat"><span>Podiums</span><span class="rookie-stat-val">1</span></div>
+      <div class="rookie-stat"><span>Fastest Laps</span><span class="rookie-stat-val">0</span></div>
+      <div class="rookie-stat"><span>Points Finishes</span><span class="rookie-stat-val">10</span></div>
+      <div class="rookie-stat"><span>Best Result</span><span class="rookie-stat-val" style="color:var(--gold)">P3</span></div>
+    </div>
+    <div class="rookie-card" style="border-color:rgba(82,226,82,0.25)">
+      <div class="rookie-name">🇧🇷 Gabriel Bortoleto</div>
+      <div class="rookie-team" style="color:var(--sauber)">KICK SAUBER · BRAZIL</div>
+      <div class="rookie-stat"><span>Points</span><span class="rookie-stat-val" style="color:var(--sauber)">19</span></div>
+      <div class="rookie-stat"><span>Podiums</span><span class="rookie-stat-val">0</span></div>
+      <div class="rookie-stat"><span>Fastest Laps</span><span class="rookie-stat-val">0</span></div>
+      <div class="rookie-stat"><span>Points Finishes</span><span class="rookie-stat-val">5</span></div>
+      <div class="rookie-stat"><span>Best Result</span><span class="rookie-stat-val">P7</span></div>
+    </div>
+    <div class="rookie-card" style="border-color:rgba(0,147,204,0.25)">
+      <div class="rookie-name">🇦🇺 Jack Doohan</div>
+      <div class="rookie-team" style="color:var(--alpine)">ALPINE · AUSTRALIA (R1-6)</div>
+      <div class="rookie-stat"><span>Points</span><span class="rookie-stat-val">0</span></div>
+      <div class="rookie-stat"><span>Rounds</span><span class="rookie-stat-val">6</span></div>
+      <div class="rookie-stat"><span>Replaced by</span><span class="rookie-stat-val" style="font-size:0.6rem">Colapinto</span></div>
+      <div class="rookie-stat"><span>Best Result</span><span class="rookie-stat-val">P12</span></div>
+    </div>
+    <div class="rookie-card" style="border-color:rgba(0,147,204,0.25)">
+      <div class="rookie-name">🇦🇷 Franco Colapinto</div>
+      <div class="rookie-team" style="color:var(--alpine)">ALPINE · ARGENTINA (R7-24)</div>
+      <div class="rookie-stat"><span>Points</span><span class="rookie-stat-val">0</span></div>
+      <div class="rookie-stat"><span>Rounds</span><span class="rookie-stat-val">18</span></div>
+      <div class="rookie-stat"><span>Points Finishes</span><span class="rookie-stat-val">0</span></div>
+      <div class="rookie-stat"><span>Best Result</span><span class="rookie-stat-val">P11</span></div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<footer class="footer">
+  F1 2025 SEASON DASHBOARD &nbsp;·&nbsp; DATA: FINAL STANDINGS AFTER ABU DHABI GP (R24) &nbsp;·&nbsp; CHAMPION: LANDO NORRIS &nbsp;·&nbsp; CONSTRUCTOR: McLAREN
+</footer>
+
+<script>
+// ─── DATA ───
+const drivers = [
+  {pos:1, name:'Lando Norris',    flag:'🇬🇧', team:'McLaren',       tc:'#ff8000', pts:423, wins:7, poles:7, fl:6, pods:18, champ:true},
+  {pos:2, name:'Max Verstappen',  flag:'🇳🇱', team:'Red Bull',      tc:'#3671c6', pts:421, wins:8, poles:8, fl:3, pods:15},
+  {pos:3, name:'Oscar Piastri',   flag:'🇦🇺', team:'McLaren',       tc:'#ff8000', pts:410, wins:7, poles:6, fl:6, pods:16},
+  {pos:4, name:'George Russell',  flag:'🇬🇧', team:'Mercedes',      tc:'#00d2be', pts:319, wins:2, poles:2, fl:3, pods:9},
+  {pos:5, name:'Charles Leclerc', flag:'🇲🇨', team:'Ferrari',       tc:'#e8002d', pts:242, wins:0, poles:1, fl:1, pods:7},
+  {pos:6, name:'Lewis Hamilton',  flag:'🇬🇧', team:'Ferrari',       tc:'#e8002d', pts:156, wins:0, poles:0, fl:1, pods:0},
+  {pos:7, name:'Kimi Antonelli',  flag:'🇮🇹', team:'Mercedes',      tc:'#00d2be', pts:150, wins:0, poles:0, fl:3, pods:3},
+  {pos:8, name:'Alexander Albon', flag:'🇹🇭', team:'Williams',      tc:'#005aff', pts:73,  wins:0, poles:0, fl:1, pods:0},
+  {pos:9, name:'Carlos Sainz',    flag:'🇪🇸', team:'Williams',      tc:'#005aff', pts:64,  wins:0, poles:0, fl:0, pods:2},
+  {pos:10,name:'Fernando Alonso', flag:'🇪🇸', team:'Aston Martin',  tc:'#006f62', pts:56,  wins:0, poles:0, fl:0, pods:0},
+  {pos:11,name:'Nico Hülkenberg', flag:'🇩🇪', team:'Kick Sauber',   tc:'#52e252', pts:51,  wins:0, poles:0, fl:0, pods:1},
+  {pos:12,name:'Isack Hadjar',    flag:'🇫🇷', team:'Racing Bulls',  tc:'#6692ff', pts:51,  wins:0, poles:0, fl:0, pods:1},
+  {pos:13,name:'Oliver Bearman',  flag:'🇬🇧', team:'Haas',          tc:'#b6babd', pts:41,  wins:0, poles:0, fl:0, pods:0},
+  {pos:14,name:'Liam Lawson',     flag:'🇳🇿', team:'Red Bull',      tc:'#3671c6', pts:38,  wins:0, poles:0, fl:0, pods:0},
+  {pos:15,name:'Esteban Ocon',    flag:'🇫🇷', team:'Haas',          tc:'#b6babd', pts:38,  wins:0, poles:0, fl:0, pods:0},
+  {pos:16,name:'Lance Stroll',    flag:'🇨🇦', team:'Aston Martin',  tc:'#006f62', pts:33,  wins:0, poles:0, fl:0, pods:0},
+  {pos:17,name:'Yuki Tsunoda',    flag:'🇯🇵', team:'RB/Racing Bulls',tc:'#6692ff', pts:33,  wins:0, poles:0, fl:0, pods:0},
+  {pos:18,name:'Pierre Gasly',    flag:'🇫🇷', team:'Alpine',        tc:'#0093cc', pts:22,  wins:0, poles:0, fl:0, pods:0},
+  {pos:19,name:'Gabriel Bortoleto',flag:'🇧🇷',team:'Kick Sauber',   tc:'#52e252', pts:19,  wins:0, poles:0, fl:0, pods:0},
+  {pos:20,name:'Franco Colapinto',flag:'🇦🇷', team:'Alpine',        tc:'#0093cc', pts:0,   wins:0, poles:0, fl:0, pods:0},
+  {pos:21,name:'Jack Doohan',     flag:'🇦🇺', team:'Alpine',        tc:'#0093cc', pts:0,   wins:0, poles:0, fl:0, pods:0},
+];
+
+const constructors = [
+  {pos:1, name:'McLaren',      tc:'#ff8000', pts:833, wins:14, poles:13, pods:34},
+  {pos:2, name:'Mercedes',     tc:'#00d2be', pts:469, wins:2,  poles:2,  pods:12},
+  {pos:3, name:'Red Bull',     tc:'#3671c6', pts:451, wins:8,  poles:8,  pods:15},
+  {pos:4, name:'Ferrari',      tc:'#e8002d', pts:398, wins:0,  poles:1,  pods:7},
+  {pos:5, name:'Williams',     tc:'#005aff', pts:137, wins:0,  poles:0,  pods:2},
+  {pos:6, name:'Racing Bulls', tc:'#6692ff', pts:92,  wins:0,  poles:0,  pods:1},
+  {pos:7, name:'Aston Martin', tc:'#006f62', pts:89,  wins:0,  poles:0,  pods:0},
+  {pos:8, name:'Haas',         tc:'#b6babd', pts:79,  wins:0,  poles:0,  pods:0},
+  {pos:9, name:'Kick Sauber',  tc:'#52e252', pts:70,  wins:0,  poles:0,  pods:1},
+  {pos:10,name:'Alpine',       tc:'#0093cc', pts:22,  wins:0,  poles:0,  pods:0},
+];
+
+const races = [
+  {r:1, name:'Australia', country:'🇦🇺', winner:'Norris',   tc:'#ff8000'},
+  {r:2, name:'China',     country:'🇨🇳', winner:'Piastri',  tc:'#ff8000'},
+  {r:3, name:'Japan',     country:'🇯🇵', winner:'Verstappen',tc:'#3671c6'},
+  {r:4, name:'Bahrain',   country:'🇧🇭', winner:'Piastri',  tc:'#ff8000'},
+  {r:5, name:'Saudi Arabia',country:'🇸🇦',winner:'Verstappen',tc:'#3671c6'},
+  {r:6, name:'Miami',     country:'🇺🇸', winner:'Norris',   tc:'#ff8000'},
+  {r:7, name:'Emilia Romagna',country:'🇮🇹',winner:'Piastri',tc:'#ff8000'},
+  {r:8, name:'Monaco',    country:'🇲🇨', winner:'Russell',  tc:'#00d2be'},
+  {r:9, name:'Spain',     country:'🇪🇸', winner:'Piastri',  tc:'#ff8000'},
+  {r:10,name:'Canada',    country:'🇨🇦', winner:'Verstappen',tc:'#3671c6'},
+  {r:11,name:'Austria',   country:'🇦🇹', winner:'Norris',   tc:'#ff8000'},
+  {r:12,name:'Britain',   country:'🇬🇧', winner:'Norris',   tc:'#ff8000'},
+  {r:13,name:'Belgium',   country:'🇧🇪', winner:'Piastri',  tc:'#ff8000'},
+  {r:14,name:'Hungary',   country:'🇭🇺', winner:'Norris',   tc:'#ff8000'},
+  {r:15,name:'Netherlands',country:'🇳🇱',winner:'Piastri',  tc:'#ff8000'},
+  {r:16,name:'Italy',     country:'🇮🇹', winner:'Verstappen',tc:'#3671c6'},
+  {r:17,name:'Azerbaijan',country:'🇦🇿', winner:'Verstappen',tc:'#3671c6'},
+  {r:18,name:'Singapore', country:'🇸🇬', winner:'Russell',  tc:'#00d2be'},
+  {r:19,name:'USA',       country:'🇺🇸', winner:'Verstappen',tc:'#3671c6'},
+  {r:20,name:'Mexico City',country:'🇲🇽',winner:'Verstappen',tc:'#3671c6'},
+  {r:21,name:'São Paulo', country:'🇧🇷', winner:'Norris',   tc:'#ff8000'},
+  {r:22,name:'Las Vegas', country:'🇺🇸', winner:'Verstappen',tc:'#3671c6'},
+  {r:23,name:'Qatar',     country:'🇶🇦', winner:'Piastri',  tc:'#ff8000'},
+  {r:24,name:'Abu Dhabi', country:'🇦🇪', winner:'Verstappen',tc:'#3671c6'},
+];
+
+// ─── RENDER FUNCTIONS ───
+
+function renderFullStandings() {
+  const el = document.getElementById('full-standings');
+  const total = drivers[0].pts;
+  el.innerHTML = drivers.map(d => {
+    const posClass = d.pos===1?'p1':d.pos===2?'p2':d.pos===3?'p3':'';
+    const numClass = d.pos===1?'gold':d.pos===2?'silver':d.pos===3?'bronze':'normal';
+    const badges = [];
+    if (d.champ) badges.push('<span class="badge badge-champ">🏆 CHAMPION</span>');
+    if (d.wins > 0) badges.push(`<span class="badge badge-win">W${d.wins}</span>`);
+    if (d.poles > 0) badges.push(`<span class="badge badge-pole">P${d.poles}</span>`);
+    if (d.pods > 0) badges.push(`<span class="badge badge-pod">🥇${d.pods}</span>`);
+    if (d.fl > 0) badges.push(`<span class="badge badge-fl">FL${d.fl}</span>`);
+    const pct = Math.round(d.pts/total*100);
+    return `
+    <div class="driver-row ${posClass}">
+      <div class="pos-number ${numClass}">${d.pos}</div>
+      <div class="team-bar" style="background:${d.tc}"></div>
+      <div class="driver-info">
+        <div class="driver-name">${d.flag} ${d.name}</div>
+        <div class="driver-team">${d.team}</div>
+      </div>
+      <div class="driver-badges">${badges.join('')}</div>
+      <div style="min-width:6rem">
+        <div class="progress-track" style="margin-bottom:0.3rem"><div class="progress-fill" style="width:${pct}%;background:${d.tc}"></div></div>
+        <div class="driver-pts-label" style="text-align:right;color:#555">${pct}% of leader</div>
+      </div>
+      <div>
+        <div class="driver-points" style="color:${d.tc}">${d.pts}</div>
+        <div class="driver-pts-label">PTS</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderConstructors() {
+  const total = constructors[0].pts;
+  document.getElementById('constructor-full').innerHTML = constructors.map(c => `
+    <div class="constructor-row" ${c.pos===1?'style="background:linear-gradient(90deg,rgba(255,128,0,0.06),transparent 60%)"':''}>
+      <div class="constructor-pos">${c.pos}</div>
+      <div class="constructor-color" style="background:${c.tc}"></div>
+      <div class="constructor-name">${c.name} ${c.pos===1?'🏆':''}</div>
+      <div class="constructor-bar-wrap">
+        <div class="progress-track"><div class="progress-fill" style="width:${Math.round(c.pts/total*100)}%;background:${c.tc}"></div></div>
+      </div>
+      <div class="constructor-pts" style="color:${c.tc}">${c.pts}</div>
+    </div>`).join('');
+
+  // Percentage share
+  const grandTotal = constructors.reduce((s,c)=>s+c.pts,0);
+  document.getElementById('constructor-share').innerHTML = constructors.map(c => {
+    const pct = (c.pts/grandTotal*100).toFixed(1);
+    return `<div class="progress-row">
+      <div class="progress-label" style="color:${c.tc}">${c.name}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${c.tc}"></div></div>
+      <div class="progress-val">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  const maxW = Math.max(...constructors.map(c=>c.wins));
+  const maxP = Math.max(...constructors.map(c=>c.poles));
+  const maxPod = Math.max(...constructors.map(c=>c.pods));
+
+  document.getElementById('constructor-wins').innerHTML = constructors.filter(c=>c.wins>0).map(c=>`
+    <div class="progress-row">
+      <div class="progress-label" style="color:${c.tc}">${c.name}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${c.wins/maxW*100}%;background:${c.tc}"></div></div>
+      <div class="progress-val">${c.wins}</div>
+    </div>`).join('');
+
+  document.getElementById('constructor-poles').innerHTML = constructors.filter(c=>c.poles>0).map(c=>`
+    <div class="progress-row">
+      <div class="progress-label" style="color:${c.tc}">${c.name}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${c.poles/maxP*100}%;background:${c.tc}"></div></div>
+      <div class="progress-val">${c.poles}</div>
+    </div>`).join('');
+
+  document.getElementById('constructor-podiums').innerHTML = constructors.filter(c=>c.pods>0).map(c=>`
+    <div class="progress-row">
+      <div class="progress-label" style="color:${c.tc}">${c.name}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${c.pods/maxPod*100}%;background:${c.tc}"></div></div>
+      <div class="progress-val">${c.pods}</div>
+    </div>`).join('');
+}
+
+function makeDots(count, color) {
+  return Array.from({length:count},()=>`<div class="dot" style="background:${color}"></div>`).join('');
+}
+
+function renderPerformance() {
+  document.getElementById('wins-ver').innerHTML = makeDots(8,'#3671c6');
+  document.getElementById('wins-nor').innerHTML = makeDots(7,'#ff8000');
+  document.getElementById('wins-pia').innerHTML = makeDots(7,'#ff8000');
+  document.getElementById('wins-rus').innerHTML = makeDots(2,'#00d2be');
+  document.getElementById('poles-ver').innerHTML = makeDots(8,'#3671c6');
+  document.getElementById('poles-nor').innerHTML = makeDots(7,'#ff8000');
+  document.getElementById('poles-pia').innerHTML = makeDots(6,'#ff8000');
+  document.getElementById('poles-rus').innerHTML = makeDots(2,'#00d2be');
+  document.getElementById('poles-lec').innerHTML = makeDots(1,'#e8002d');
+  document.getElementById('fl-nor').innerHTML = makeDots(6,'#ff8000');
+  document.getElementById('fl-pia').innerHTML = makeDots(6,'#ff8000');
+  document.getElementById('fl-ant').innerHTML = makeDots(3,'#00d2be');
+  document.getElementById('fl-rus').innerHTML = makeDots(3,'#00d2be');
+  document.getElementById('fl-ver').innerHTML = makeDots(3,'#3671c6');
+}
+
+function renderCalendar() {
+  document.getElementById('race-calendar').innerHTML = races.map(r=>`
+    <div class="race-cell" style="--team-color:${r.tc}">
+      <div class="race-round">R${r.r} ${r.country}</div>
+      <div class="race-name">${r.name} GP</div>
+      <div class="race-winner">Winner: <span>${r.winner}</span></div>
+    </div>`).join('');
+}
+
+// ─── NAVIGATION ───
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── INIT ───
+renderFullStandings();
+renderConstructors();
+renderPerformance();
+renderCalendar();
+</script>
+</body>
+</html>
