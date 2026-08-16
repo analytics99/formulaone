@@ -7,12 +7,28 @@ Generalizes the single-season notebooks (`2024_Formula_1_Season_Data.ipynb`,
 available from the [OpenF1 API](https://openf1.org/), not just one hardcoded year,
 and upserts the result into Airtable.
 
+### One-time setup
+
+1. Create an Airtable Personal Access Token (PAT) at
+   [airtable.com/create/tokens](https://airtable.com/create/tokens) with
+   `data.records:read` and `data.records:write` scopes, granted access to the
+   `Formula 1 Multi-Year Data` base (`appmZPMPRAjoKM5He`).
+2. In Colab, click the **key icon (🔑)** in the left sidebar → **Add new secret** →
+   name it `AIRTABLE_API_KEY`, paste the PAT as the value, enable **Notebook access**.
+   The token then never touches the notebook file or git history — the notebook reads
+   it at runtime via `google.colab.userdata.get("AIRTABLE_API_KEY")`.
+   - Not on Colab? Export `AIRTABLE_API_KEY` as an environment variable before
+     launching Jupyter, or the notebook will fall back to a hidden `getpass` prompt.
+
+### Running it
+
 Run the cells top to bottom:
 
-1. **Pre-Requisites** — imports (`pandas`, `pandasql`, `requests`).
+1. **Pre-Requisites** — auto-installs any missing packages (`pandas`, `pandasql`,
+   `requests`) and imports everything the notebook needs.
 2. **Configuration** — set `YEARS_TO_INCLUDE` (`None` = all seasons, or a list like
-   `[2023, 2024, 2025]`), and provide an Airtable Personal Access Token (via the
-   `AIRTABLE_API_KEY` env var, or the notebook will prompt for it).
+   `[2023, 2024, 2025]`), then resolves the Airtable token from the Colab Secret set
+   up above (env var / prompt as fallbacks for non-Colab environments).
 3. **Helper Functions** — fetch/format/upsert helpers.
 4. **Fetch Core Reference Data** — sessions, meetings, drivers, session results,
    starting grid, pit stops. These OpenF1 endpoints return their full history in one
