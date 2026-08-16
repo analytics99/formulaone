@@ -5,49 +5,49 @@
 Generalizes the single-season notebooks (`2024_Formula_1_Season_Data.ipynb`,
 `2025_Formula_1_Season_Data.ipynb`) into one pipeline that pulls **every season**
 available from the [OpenF1 API](https://openf1.org/), not just one hardcoded year,
-and upserts the result into Airtable.
+and writes the result into a Google Sheet.
 
 ### One-time setup
 
-1. Create an Airtable Personal Access Token (PAT) at
-   [airtable.com/create/tokens](https://airtable.com/create/tokens) with
-   `data.records:read` and `data.records:write` scopes, granted access to the
-   `Formula 1 Multi-Year Data` base (`appmZPMPRAjoKM5He`).
-2. In Colab, click the **key icon (🔑)** in the left sidebar → **Add new secret** →
-   name it `AIRTABLE_API_KEY`, paste the PAT as the value, enable **Notebook access**.
-   The token then never touches the notebook file or git history — the notebook reads
-   it at runtime via `google.colab.userdata.get("AIRTABLE_API_KEY")`.
-   - Not on Colab? Export `AIRTABLE_API_KEY` as an environment variable before
-     launching Jupyter, or the notebook will fall back to a hidden `getpass` prompt.
+- **Running in Google Colab (recommended):** none. The notebook authenticates via
+  Colab's built-in Google sign-in (`google.colab.auth.authenticate_user()`) — no API
+  key, token, or secret to create or manage. The spreadsheet is created under
+  whichever Google account you sign in with, the first time the notebook runs.
+- **Running outside Colab** (local Jupyter, CI, etc.): either point
+  `GOOGLE_APPLICATION_CREDENTIALS` at a service account JSON file with edit access to
+  the target spreadsheet, or leave it unset — the notebook falls back to
+  `gspread.oauth()`, a one-time interactive browser sign-in whose token gets cached
+  locally for future runs.
 
 ### Running it
 
 Run the cells top to bottom:
 
 1. **Pre-Requisites** — auto-installs any missing packages (`pandas`, `pandasql`,
-   `requests`) and imports everything the notebook needs.
+   `requests`, `gspread`) and imports everything the notebook needs.
 2. **Configuration** — set `YEARS_TO_INCLUDE` (`None` = all seasons, or a list like
-   `[2023, 2024, 2025]`), then resolves the Airtable token from the Colab Secret set
-   up above (env var / prompt as fallbacks for non-Colab environments).
-3. **Helper Functions** — fetch/format/upsert helpers.
-4. **Fetch Core Reference Data** — sessions, meetings, drivers, session results,
+   `[2023, 2024, 2025]`), and the target spreadsheet name / tab names.
+3. **Authenticate & Open the Spreadsheet** — signs in and opens `SPREADSHEET_NAME`,
+   creating it if it doesn't exist yet.
+4. **Helper Functions** — fetch/format/push helpers.
+5. **Fetch Core Reference Data** — sessions, meetings, drivers, session results,
    starting grid, pit stops. These OpenF1 endpoints return their full history in one
    unfiltered call, so this step runs once regardless of how many seasons are kept.
-5. **Scope to Selected Years** — applies `YEARS_TO_INCLUDE`.
-6. **Fetch Laps** — looped per race session (laps are too high-volume for one call).
-7. **Shape Data for Airtable** — builds the primary/composite keys and column names
-   each Airtable table expects.
-8. **Exploratory SQL Joins** — season standings and lap analysis across all years
+6. **Scope to Selected Years** — applies `YEARS_TO_INCLUDE`.
+7. **Fetch Laps** — looped per race session (laps are too high-volume for one call).
+8. **Shape Data for Google Sheets** — builds each table's identifying key column and
+   the header names each tab will use.
+9. **Exploratory SQL Joins** — season standings and lap analysis across all years
    (via `pandasql`), generalizing the original notebooks' single-season queries.
-9. **Push to Airtable** — upserts each table (safe to re-run).
-10. **Summary** — row counts per table.
+10. **Push to Google Sheets** — full-refreshes each tab (safe to re-run).
+11. **Summary** — row counts per tab, plus the spreadsheet URL.
 
-### Airtable base
+### Google Sheet
 
-Data lands in the **Formula 1 Multi-Year Data** base
-(`https://airtable.com/appmZPMPRAjoKM5He`), which has 7 tables:
+Data lands in a spreadsheet named **Formula 1 Multi-Year Data**, created
+automatically on first run, with 7 tabs:
 
-| Table | Primary Field | Source |
+| Tab | Identifying column | Source |
 |---|---|---|
 | Meetings | Meeting Key | `/meetings` |
 | Sessions | Session Key | `/sessions` |
@@ -57,14 +57,17 @@ Data lands in the **Formula 1 Multi-Year Data** base
 | Laps | Lap Key (`{session_key}_{driver_number}_{lap_number}`) | `/laps` |
 | Pit Stops | Pit Key (`{session_key}_{driver_number}_{lap_number}`) | `/pit` |
 
-Every table also carries `Session Key`/`Meeting Key`/`Driver Number` foreign keys and
-a `Year` field, so downstream joins/filters (e.g. "all of 2024", or joining Laps back
-to Sessions/Meetings) work directly in Airtable without needing native record links.
+Every tab also carries `Session Key`/`Meeting Key`/`Driver Number` columns and a
+`Year` column, so filters and lookups (e.g. "all of 2024", or `VLOOKUP`ing Laps back
+to Sessions/Meetings) work directly in Sheets without needing separate join tables.
 
-Pushes use Airtable's upsert API (`performUpsert`, keyed on each table's primary
-field), so re-running the notebook updates existing rows instead of duplicating them.
+**Refresh semantics differ from the previous Airtable version:** Sheets has no
+native per-row upsert API, so each push is a **full refresh** per tab (clear → header
+→ append) rather than a row-level upsert. Re-running the notebook always leaves each
+tab matching the current pull exactly — idempotent, but any manual edits made
+directly in the sheet get overwritten on the next run.
 
-**Note on volume:** Laps and Pit Stops are the highest-row-count tables (tens of
-thousands of rows per season). If your Airtable plan has a low per-base record limit,
-set `PUSH_LAPS_TO_AIRTABLE = False` and/or `PUSH_PITS_TO_AIRTABLE = False` in the
-Configuration cell to keep those two only in the notebook's dataframes.
+**Note on volume:** Laps and Pit Stops are the highest-row-count tabs (tens of
+thousands of rows per season). If a full multi-year pull is more than you want in the
+spreadsheet, set `PUSH_LAPS_TO_SHEETS = False` and/or `PUSH_PITS_TO_SHEETS = False` in
+the Configuration cell to keep those two only in the notebook's dataframes.
