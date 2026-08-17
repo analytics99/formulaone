@@ -31,9 +31,11 @@ Run the cells top to bottom:
 1. **Pre-Requisites** — auto-installs any missing packages (`pandas`, `pandasql`,
    `requests`, `gspread`) and imports everything the notebook needs.
 2. **Configuration** — set `YEARS_TO_INCLUDE` (`None` = all seasons, or a list like
-   `[2023, 2024, 2025]`), and the target spreadsheet name / tab names.
-3. **Authenticate & Open the Spreadsheet** — signs in and opens `SPREADSHEET_NAME`,
-   creating it if it doesn't exist yet.
+   `[2023, 2024, 2025]`), and `SPREADSHEET_ID` / tab names.
+3. **Authenticate & Open the Spreadsheet** — signs in and opens `SPREADSHEET_ID`.
+   Failures here (bad auth, sheet not shared) print a clear message and leave
+   `spreadsheet = None` rather than crashing the notebook outright — Step 10 checks
+   for that and skips the push cleanly if so.
 4. **Helper Functions** — fetch/format/push helpers.
 5. **Fetch Core Reference Data** — sessions, meetings, drivers, session results,
    starting grid, pit stops. These OpenF1 endpoints return their full history in one
@@ -44,8 +46,19 @@ Run the cells top to bottom:
    the header names each tab will use.
 9. **Exploratory SQL Joins** — season standings and lap analysis across all years
    (via `pandasql`), generalizing the original notebooks' single-season queries.
+   `sanitize_for_sql` first makes SQL-safe, separately-named copies of the dataframes
+   these two queries touch (list-typed cells → strings, `driver_number` → a single
+   consistent type) without mutating the shared dataframes Steps 6–8 use, so re-running
+   cells out of order can't leak stringified types into what gets pushed. The driver
+   standings query is anchored on `session_results_df` (the highest-coverage table)
+   with grid position joined in as optional, since grid data isn't available for every
+   early-season session — anchoring on grid data instead nulled out every driver-level
+   column for any session missing it.
 10. **Push to Google Sheets** — full-refreshes each tab (safe to re-run).
 11. **Summary** — row counts per tab, plus the spreadsheet URL.
+
+Verified end-to-end against live OpenF1 data (2023–2026 seasons, ~500 sessions, ~35k
+laps, ~30k pit stops) — all 7 tabs populated correctly.
 
 ### Google Sheet
 
