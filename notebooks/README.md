@@ -9,10 +9,15 @@ and writes the result into a Google Sheet.
 
 ### One-time setup
 
-- **Running in Google Colab (recommended):** none. The notebook authenticates via
-  Colab's built-in Google sign-in (`google.colab.auth.authenticate_user()`) — no API
-  key, token, or secret to create or manage. The spreadsheet is created under
-  whichever Google account you sign in with, the first time the notebook runs.
+- **Target spreadsheet:** this notebook writes to
+  [this existing sheet](https://docs.google.com/spreadsheets/d/1FHF1yWmg5sv0e2WGVafTiM-zfzfaxvleRxG28nvjd9U)
+  (`SPREADSHEET_ID` in the Configuration cell) — it is not created for you. Make sure
+  it's shared with **Editor** access to whichever Google account you authenticate as
+  below, or update `SPREADSHEET_ID` to point at a different sheet you do have access to.
+- **Running in Google Colab (recommended):** nothing else to set up. The notebook
+  authenticates via Colab's built-in Google sign-in
+  (`google.colab.auth.authenticate_user()`) — no API key, token, or secret to create
+  or manage.
 - **Running outside Colab** (local Jupyter, CI, etc.): either point
   `GOOGLE_APPLICATION_CREDENTIALS` at a service account JSON file with edit access to
   the target spreadsheet, or leave it unset — the notebook falls back to
@@ -44,8 +49,8 @@ Run the cells top to bottom:
 
 ### Google Sheet
 
-Data lands in a spreadsheet named **Formula 1 Multi-Year Data**, created
-automatically on first run, with 7 tabs:
+Data lands in [this spreadsheet](https://docs.google.com/spreadsheets/d/1FHF1yWmg5sv0e2WGVafTiM-zfzfaxvleRxG28nvjd9U),
+with 7 tabs:
 
 | Tab | Identifying column | Source |
 |---|---|---|
